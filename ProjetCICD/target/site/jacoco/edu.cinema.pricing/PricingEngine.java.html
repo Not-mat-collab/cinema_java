@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PricingEngine.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CI Jenkins Maven Starter</a> &gt; <a href="index.source.html" class="el_package">edu.cinema.pricing</a> &gt; <span class="el_source">PricingEngine.java</span></div><h1>PricingEngine.java</h1><pre class="source lang-java linenums">package edu.cinema.pricing;
+
+import java.time.DayOfWeek;
+import java.util.List;
+
+<span class="fc" id="L6">public class PricingEngine {</span>
+
+    public double basePrice(TicketType type) {
+<span class="fc bfc" id="L9" title="All 2 branches covered.">        if (type == null) throw new IllegalArgumentException(&quot;Ticket type cannot be null&quot;);</span>
+
+<span class="fc bfc" id="L11" title="All 4 branches covered.">        return switch (type) {</span>
+<span class="fc" id="L12">            case ADULT -&gt; 10.0;</span>
+<span class="fc" id="L13">            case CHILD -&gt; 6.0;</span>
+<span class="fc" id="L14">            case SENIOR -&gt; 7.5;</span>
+<span class="fc" id="L15">            case STUDENT -&gt; 8.0;</span>
+        };
+    }
+public PriceBreakdown computeTotal(List&lt;TicketType&gt; tickets, boolean is3D, DayOfWeek day) {
+<span class="fc bfc" id="L19" title="All 4 branches covered.">        if (tickets == null || day == null)</span>
+<span class="fc" id="L20">            throw new IllegalArgumentException(&quot;Tickets and day cannot be null&quot;);</span>
+
+<span class="fc bfc" id="L22" title="All 2 branches covered.">        if (tickets.isEmpty())</span>
+<span class="fc" id="L23">            return new PriceBreakdown(0, 0, 0, 0, 0);</span>
+
+<span class="fc" id="L25">        double subtotal = tickets.stream().mapToDouble(this::basePrice).sum();</span>
+
+<span class="fc" id="L27">        double wednesdayDisc = 0;</span>
+<span class="fc bfc" id="L28" title="All 2 branches covered.">        if (day == DayOfWeek.WEDNESDAY) {</span>
+<span class="fc" id="L29">            wednesdayDisc = subtotal * 0.20;</span>
+<span class="fc" id="L30">            subtotal -= wednesdayDisc;</span>
+        }
+
+<span class="fc" id="L33">        double threeDSurcharge = 0;</span>
+<span class="fc bfc" id="L34" title="All 2 branches covered.">        if (is3D) {</span>
+<span class="fc" id="L35">            threeDSurcharge = tickets.size() * 2.0;</span>
+<span class="fc" id="L36">            subtotal += threeDSurcharge;</span>
+        }
+
+    
+<span class="fc" id="L40">        double groupDisc = 0;</span>
+<span class="fc bfc" id="L41" title="All 2 branches covered.">        if (tickets.size() &gt;= 4) {</span>
+<span class="fc" id="L42">            groupDisc = subtotal * 0.10;</span>
+<span class="fc" id="L43">            subtotal -= groupDisc;</span>
+        }
+
+<span class="fc" id="L46">        double total = roundToCents(subtotal);</span>
+
+<span class="fc" id="L48">        return new PriceBreakdown(</span>
+<span class="fc" id="L49">                roundToCents(tickets.stream().mapToDouble(this::basePrice).sum()),</span>
+<span class="fc" id="L50">                roundToCents(wednesdayDisc),</span>
+<span class="fc" id="L51">                roundToCents(threeDSurcharge),</span>
+<span class="fc" id="L52">                roundToCents(groupDisc),</span>
+                total
+        );
+    }
+
+    private double roundToCents(double value) {
+<span class="fc" id="L58">        return Math.round(value * 100.0) / 100.0;</span>
+    }
+}
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>
